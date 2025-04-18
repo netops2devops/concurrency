@@ -24,7 +24,7 @@ func RepoCloneWorker(id int, job <-chan string, result chan<- string, wg *sync.W
 			result <- fmt.Sprintf("Worker %d failed trim suffix %s", id, url)
 		}
 
-		clonepath := filepath.Join("/Users/kagraw/tmpdir/demo", name)
+		clonepath := filepath.Join("/tmp", name)
 
 		_, err := git.PlainClone(clonepath, false, &git.CloneOptions{
 			URL: url,
