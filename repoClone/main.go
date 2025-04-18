@@ -22,7 +22,6 @@ func CollectPublicRepoURLs(org string) []string {
 	}
 	defer resp.Body.Close()
 
-	// read client response
 	body, err := io.ReadAll(resp.Body)
 
 	var result []map[string]any
@@ -31,9 +30,9 @@ func CollectPublicRepoURLs(org string) []string {
 		log.Fatal("Unable to unmarshal response", err)
 	}
 
-	urls := make([]string, 0, 100) // length=0, capacity=100
+	urls := make([]string, 0, 100)
 
-	// extract repo url
+	// Extract repo url
 	for _, repo := range result {
 		u, ok := repo["clone_url"].(string)
 		if !ok {
