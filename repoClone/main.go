@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	MAX_WORKERS = 10
+	MAX_WORKERS = 5
 )
 
 func CollectPublicRepoURLs(org string) []string {
@@ -51,22 +51,36 @@ func main() {
 	jobs := make(chan string, len(urls))
 	var wg sync.WaitGroup
 
-	// Start workerpool to clone repo
+	// Create workerpool to clone repo
 	for i := 1; i <= MAX_WORKERS; i++ {
 		wg.Add(1)
 		go RepoCloneWorker(i, jobs, results, &wg)
 	}
 
-	// Send all urls to job queue
+	// Send all urls to job queue channel
 	for _, url := range urls {
 		jobs <- url
 	}
 	close(jobs)
-	wg.Wait()
 
-	// Collect results
-	close(results)
+	// Collect results as they become available
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
 	for r := range results {
 		fmt.Println(r)
 	}
+
+	// Cleanup all cloned repositories
+	RepoCleaner()
+}
+
+func RepoCleaner() bool {
+	err := os.RemoveAll("/tmp/demo")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return true
 }
